@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-UploadRouter.post('/upload', upload.single('file'),async(req, res) => {
+UploadRouter.post('/', upload.single('file'),async(req, res) => {
     try{
     let text = await processor(req);
     return res.status(200).json({text:text||""})
