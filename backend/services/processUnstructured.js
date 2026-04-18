@@ -68,7 +68,7 @@ export const processUnstructured = async (elements) => {
       const table_html = el.metadata?.text_as_html;
       if (table_html) {
         
-        const tableText = convertTableToText(table_html);
+        const tableText = await convertTableToText(table_html);
 
         finalDocs.push(new Document({
           pageContent: tableText,

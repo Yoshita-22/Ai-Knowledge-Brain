@@ -20,7 +20,7 @@ export const handleText = async (filename) => {
                     content: data,
                     fileName: filename,
                 },
-                strategy: Strategy.Auto,
+                strategy:  "fast"
             }
         });
 
