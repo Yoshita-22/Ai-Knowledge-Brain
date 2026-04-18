@@ -52,6 +52,7 @@ QueryRouter.post("/", async (req, res) => {
       history,
       fileId,
       sessionId, //  IMPORTANT
+      userId
     });
 
     // ===========================

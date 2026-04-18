@@ -1,37 +1,64 @@
 import { UnstructuredClient } from "unstructured-client";
-import { Strategy } from "unstructured-client/sdk/models/shared";
-import * as fs from "fs";
+import fs from "fs";
 import dotenv from "dotenv";
+import { Strategy } from "unstructured-client/sdk/models/shared";
 dotenv.config();
 
-export const handleText = async (filename) => {
+const client = new UnstructuredClient({
+  security: {
+    apiKeyAuth: process.env.UNSTRUCTURED_API_KEY,
+  },
+});
+
+// Retry Wrapper
+const retryRequest = async (fn, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
     try {
-        const client = new UnstructuredClient({
-            security: {
-                apiKeyAuth: process.env.UNSTRUCTURED_API_KEY
-            },
-        });
+      return await fn();
+    } catch (err) {
+      console.log(`Retry ${i + 1}...`);
 
-        const data = fs.readFileSync(filename);
+      if (i === retries - 1) throw err;
 
-        const response = await client.general.partition({
-            partitionParameters: {
-                files: {
-                    content: data,
-                    fileName: filename,
-                },
-                strategy:  "fast"
-            }
-        });
-
-        console.log(" Unstructured done");
-
-        // Extract text properly
-       const text = response
-       
-        return text;
-    } catch (e) {
-        console.error(e);
-        throw e;
+      // exponential backoff
+      await new Promise(res => setTimeout(res, 2000 * (i + 1)));
     }
+  }
+};
+
+export const handleText = async (filename) => {
+  try {
+    const data = fs.readFileSync(filename);
+
+    const response = await retryRequest(() =>
+      client.general.partition({
+        partitionParameters: {
+          files: {
+            content: data,
+            fileName: filename,
+          },
+
+          //  BEST SETTINGS
+          strategy: Strategy.Auto,   // more accurate than "fast"
+          splitPdfPage:false
+          
+          
+        },
+      })
+    );
+
+    console.log("Unstructured done");
+
+    // ============================
+    // EXTRACT CLEAN TEXT
+    // ============================
+    const elements = response || [];
+    console.log(elements);
+    return elements;
+    
+
+  } catch (e) {
+    console.error(" Unstructured error:", e);
+    throw e;
+  }
 };

@@ -8,6 +8,7 @@ import { storeDocuments } from "../vector_database/storeDB.js";
 export const processor = async (req)=>{
     let text = "";
     let docs = "";
+    let {sessionId,userId}=req.body;
     try{
          if(req.body.url){
             text =  await handleUrl(req.body.url);
@@ -30,13 +31,12 @@ export const processor = async (req)=>{
             };
             console.log(req.file?.originalname)
             // STORE IN QDRANT (HERE )
-            await storeDocuments(docs, fileInfo);
+            await storeDocuments(docs, fileInfo, sessionId,userId);
 
             return "Stored successfully ";
+            return docs;
 
     }catch(e){
         return e;
-    }
-
-   
+    }  
 }  

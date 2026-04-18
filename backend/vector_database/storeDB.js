@@ -5,7 +5,7 @@ import crypto from "crypto";
 /**
  * MAIN FUNCTION
  */
-export const storeDocuments = async (docs, fileInfo,sessionId) => {
+export const storeDocuments = async (docs, fileInfo,sessionId,userId) => {
   const batchSize = 10; // embedding batch
   const insertBatchSize = 50; // db batch
   let allPoints = [];
@@ -39,11 +39,11 @@ export const storeDocuments = async (docs, fileInfo,sessionId) => {
         //  metadata enrichment
         type: doc.metadata?.type || "text",
         section: doc.metadata?.section || "unknown",
-        originalTable:doc.metadata?.table || null,
+        originalTable:doc.metadata?.originalTable || null,
         fileId: fileInfo.id,
         fileName: fileInfo.name,
         sessionId: sessionId,
-        
+        userId,
         chunkIndex: i + idx,
         timestamp: Date.now(),
       },

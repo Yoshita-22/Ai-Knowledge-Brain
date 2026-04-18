@@ -1,7 +1,0 @@
-✔ Qdrant semantic search
-✔ top-k retrieval
-✔ context building
-✔ Gemini / LLM answer generation
-  return response.text;
-
-

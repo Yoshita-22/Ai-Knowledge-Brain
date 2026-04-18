@@ -100,6 +100,6 @@ export const processUnstructured = async (elements) => {
       }));
     });
   }
-
+ 
   return finalDocs;
 }
