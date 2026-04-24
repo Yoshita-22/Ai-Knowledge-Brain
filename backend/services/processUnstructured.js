@@ -3,7 +3,9 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { convertTableToText } from "./convertTableToText.js";
 
 export const processUnstructured = async (elements) => {
-
+  try{
+    console.log("process unstructured is called");
+  console.log(elements[0])
   const TEXT_TYPES = ["Title", "NarrativeText", "ListItem"];
 
   let currentSection = "General";
@@ -100,6 +102,11 @@ export const processUnstructured = async (elements) => {
       }));
     });
   }
- 
-  return finalDocs;
+ console.log("finalDocs",finalDocs[0]);
+ return finalDocs;
+  }
+  catch(e){
+    console.log(e);
+    return e;
+  }
 }

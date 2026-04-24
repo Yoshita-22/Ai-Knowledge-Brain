@@ -1,0 +1,24 @@
+@keyframes orbFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-25px) scale(1.08)} }
+        @keyframes orbFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-25px,20px) scale(0.92)} }
+        @keyframes fadeSlideUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes logoFloat { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-6px)} }
+        @keyframes shimmer { 0%{transform:translateX(-100%) skewX(-12deg)} 100%{transform:translateX(300%) skewX(-12deg)} }
+        @keyframes spinAnim { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,0.35)} 50%{box-shadow:0 0 0 6px rgba(139,92,246,0)} }
+        @keyframes dotPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        .ai-input {
+          width:100%; padding:13px 16px; box-sizing:border-box;
+          background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+          border-radius:12px; color:#fff; font-size:14px; outline:none;
+          transition:border-color 0.3s,background 0.3s,box-shadow 0.3s;
+          font-family:inherit;
+        }
+        .ai-input::placeholder{color:rgba(255,255,255,0.22);}
+        .ai-input:focus{border-color:rgba(139,92,246,0.7);background:rgba(139,92,246,0.07);box-shadow:0 0 0 3px rgba(139,92,246,0.13);}
+        .ai-google-btn{transition:all 0.25s;}
+        .ai-google-btn:hover{background:rgba(255,255,255,0.09)!important;border-color:rgba(255,255,255,0.22)!important;color:rgba(255,255,255,0.85)!important;}
+        .ai-link{color:#a78bfa;text-decoration:none;font-weight:500;transition:color 0.2s;}
+        .ai-link:hover{color:#c4b5fd;}
+        .ai-cta{transition:transform 0.2s,box-shadow 0.2s;}
+        .ai-cta:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 32px rgba(124,58,237,0.55)!important;}
+        .ai-cta:active{transform:scale(0.98);}

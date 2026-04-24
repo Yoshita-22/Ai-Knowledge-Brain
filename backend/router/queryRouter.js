@@ -1,13 +1,16 @@
 import { Router } from "express";
 import { queryPipeline } from "../services/QueryPipeLine.js";
 import { Chat } from "../models/Chat.js";
-
+import { authMiddleware } from "../middleware/AuthMiddleware.js";
+import { Session } from "../models/Sessions.js";
 const QueryRouter = Router();
 
-QueryRouter.post("/", async (req, res) => {
-  try {
-    const { query, sessionId, userId, fileId } = req.body;
+QueryRouter.post("/",authMiddleware, async (req, res) => {
 
+  try {
+    const { query, sessionId, fileId } = req.body;
+    const userId = req.user.userId;
+    console.log(userId)
     // ===========================
     // VALIDATION
     // ===========================
@@ -16,7 +19,30 @@ QueryRouter.post("/", async (req, res) => {
         error: "query, sessionId, userId required",
       });
     }
+    // ===========================
+    //  STEP 0 — SESSION HANDLING
+    // ===========================
+    let session = await Session.findOne({ sessionId });
 
+    if (!session) {
+      //create new session
+      session = await Session.create({
+        sessionId,
+        userId,
+        title: query.slice(0, 40), // first message = title
+        fileId: fileId || null,
+      });
+    } else {
+      // update last active
+      session.updatedAt = new Date();
+
+      //  optional: update title if still default
+      if (session.title === "New Chat") {
+        session.title = query.slice(0, 40);
+      }
+
+      await session.save();
+    }
     // ===========================
     // STEP 1 — SAVE USER MESSAGE
     // ===========================
@@ -37,7 +63,7 @@ QueryRouter.post("/", async (req, res) => {
     if (fileId) {
       filter.fileId = fileId;
     }
-
+    
     let history = await Chat.find(filter)
       .sort({ createdAt: -1 })
       .limit(8); // last 4 turns

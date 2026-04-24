@@ -26,7 +26,7 @@ export const storeDocuments = async (docs, fileInfo,sessionId,userId) => {
       )
     );
     console.log(embeddings[0].embedding.length);
-
+    console.log(sessionId)
     //  STEP 3: Create Qdrant points
     const points = batchDocs.map((doc, idx) => ({
       id: crypto.randomUUID(),

@@ -31,3 +31,15 @@ Ambiguous follow-ups:
 User: What is BLEU score?
 User: What was the score achieved?
 User: On which dataset?
+
+
+What is BLEU score, and why is it used for machine translation evaluation?
+Why are there two columns: EN-DE and EN-FR?
+What does a higher BLEU score actually indicate about model performance?
+Why does the Transformer outperform previous models even without recurrence or convolution?
+
+
+Efficiency & Cost Questions (VERY IMPORTANT)
+Why is training cost measured in FLOPs?
+How does the Transformer achieve better performance at lower cost?
+Why are older models like RNNs more expensive computationally?

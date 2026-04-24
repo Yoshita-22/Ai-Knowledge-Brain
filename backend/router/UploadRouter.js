@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import dotenv from "dotenv";
 import { processor } from "../services/processor.js";
+import { authMiddleware } from "../middleware/AuthMiddleware.js";
 dotenv.config();
 const UploadRouter = Router();
 
@@ -15,10 +16,11 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-UploadRouter.post('/', upload.single('file'),async(req, res) => {
+UploadRouter.post('/',authMiddleware,upload.single('file'),async(req, res) => {
+    
     try{
     let text = await processor(req);
-    return res.status(200).json({text:text||""})
+    return res.status(200).json({})
    }catch(e){
         console.error(e);
         return res.status(500).json({ error: "Processing failed" });

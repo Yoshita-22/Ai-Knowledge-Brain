@@ -52,8 +52,10 @@ export const handleText = async (filename) => {
     // ============================
     // EXTRACT CLEAN TEXT
     // ============================
-    const elements = response || [];
-    console.log(elements);
+    let elements = response.filter((el)=>{
+      return el.type!=="Image"
+    })
+    console.log(elements)
     return elements;
     
 
