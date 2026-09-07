@@ -55,7 +55,7 @@ export const handleText = async (filename) => {
     let elements = response.filter((el)=>{
       return el.type!=="Image"
     })
-    console.log(elements)
+    
     return elements;
     
 

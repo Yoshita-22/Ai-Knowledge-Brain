@@ -20,7 +20,6 @@ export const loginUser = async (data) => {
 
   //  Save ONLY access token
   setAccessToken(res.data.accessToken);
-  console.log(res.data);
   return res.data;
 };
 

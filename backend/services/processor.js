@@ -3,7 +3,10 @@ import { handleImage } from "./handleImage.js";
 import { handlePdf } from "./handlePdf.js";
 import { handleUrl } from "./handleUrl.js";
 import crypto from "crypto";
-import { storeDocuments } from "../vector_database/storeDB.js";
+
+import { createChunks } from "../utils/ChunksBuilder.js";
+import { storeInQdrant } from "../storage/storeInQdrant.js";
+import storeInMeili from "../storage/storeInMeili.js";
 
 export const processor = async (req)=>{
     let text = "";
@@ -32,11 +35,15 @@ export const processor = async (req)=>{
             id: crypto.randomUUID(),
             name: req.file?.originalname || "text_input"
             };
-            console.log(req.file?.originalname)
+            //chunks craetion
+            const chunks = createChunks( docs,fileInfo,sessionId, userId);
+            console.log("chunks are created");
             // STORE IN QDRANT (HERE )
+            await storeInQdrant(chunks);
             console.log("stores in vectordb");
-            await storeDocuments(docs, fileInfo, sessionId,userId);
-
+            //store in meilisearch
+            await storeInMeili(chunks);
+            console.log("stored in meilisearch");
             return fileInfo.id;
             
 

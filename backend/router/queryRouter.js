@@ -8,9 +8,9 @@ const QueryRouter = Router();
 QueryRouter.post("/",authMiddleware, async (req, res) => {
 
   try {
+    console.log("hello")
     const { query, sessionId, fileId } = req.body;
     const userId = req.user.userId;
-    console.log(userId)
     // ===========================
     // VALIDATION
     // ===========================

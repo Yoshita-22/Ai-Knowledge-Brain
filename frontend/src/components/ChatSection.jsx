@@ -3,6 +3,7 @@ import "./ChatSection.css";
 import { uploadFile, sendQuery } from "../api/chat";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
+import ReactMarkdown from "react-markdown";
 // ── Helpers ──────────────────────────────────────────────
 const formatTime = (date) =>
   date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -60,7 +61,7 @@ function MessageBubble({ message }) {
         {/* Text */}
         {message.content && (
           <div className={`bubble ${isUser ? "user" : "ai"}`}>
-            {message.content}
+            <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
 
@@ -183,11 +184,11 @@ export default function ChatSection() {
         const uploadRes = await uploadFile(stagedFiles, sessionId);
         fileId = uploadRes.fileId;
       }
-
+      
       // Query
       const res = await sendQuery({
         query: text,
-        sessionId, // ✅ FIXED
+        sessionId, // FIXED
         fileId,
       });
 

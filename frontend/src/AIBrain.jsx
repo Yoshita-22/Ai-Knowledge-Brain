@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -388,42 +389,64 @@ function UserMessage({ msg }) {
 function AIMessage({ msg }) {
   return (
     <div className="flex items-start gap-3 message-in" style={{ marginBottom: 24 }}>
-      <div className="flex items-center justify-center rounded-xl flex-shrink-0"
-        style={{ width: 32, height: 32, background: "linear-gradient(135deg,#7C3AED,#3B82F6)", boxShadow: "0 0 12px rgba(124,58,237,0.35)", marginTop: 2 }}>
+      <div
+        className="flex items-center justify-center rounded-xl flex-shrink-0"
+        style={{
+          width: 32,
+          height: 32,
+          background: "linear-gradient(135deg,#7C3AED,#3B82F6)",
+          boxShadow: "0 0 12px rgba(124,58,237,0.35)",
+          marginTop: 2
+        }}
+      >
         <Icon.Brain />
       </div>
+
       <div style={{ maxWidth: "78%", flex: 1 }}>
-        <div className="ai-card"
-          style={{ padding: "16px 20px", borderRadius: "4px 18px 18px 18px", fontSize: 14, lineHeight: 1.75, color: "#E2E8F0" }}>
-          {renderAIContent(msg.content)}
+        <div
+          className="ai-card"
+          style={{
+            padding: "16px 20px",
+            borderRadius: "4px 18px 18px 18px",
+            fontSize: 14,
+            lineHeight: 1.75,
+            color: "#E2E8F0"
+          }}
+        >
+          <ReactMarkdown>
+  {`## Test Heading
+
+**This is bold**
+
+- Point one
+- Point two`}
+</ReactMarkdown>
+
           {msg.bullets && (
             <ul style={{ marginTop: 12, paddingLeft: 0, listStyle: "none" }}>
               {msg.bullets.map((b, i) => (
-                <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8, color: "#CBD5E1", fontSize: 13 }}>
-                  <span style={{ color: "#7C3AED", marginTop: 3, flexShrink: 0 }}>▸</span>
-                  <span>{renderAIContent(b)}</span>
+                <li
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 8,
+                    marginBottom: 8,
+                    color: "#CBD5E1",
+                    fontSize: 13
+                  }}
+                >
+                  <span style={{ color: "#7C3AED", marginTop: 3 }}>▸</span>
+                  <span>{b}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
-        {msg.source && (
-          <div className="flex items-center gap-2 mt-2">
-            <div className="source-tag flex items-center gap-1.5 rounded-full" style={{ padding: "3px 10px" }}>
-              <Icon.Source />
-              <span>{msg.source}</span>
-            </div>
-            <span style={{ fontSize: 11, color: "#4B5563" }}>{msg.timestamp}</span>
-          </div>
-        )}
-        {!msg.source && (
-          <div style={{ marginTop: 6, fontSize: 11, color: "#4B5563" }}>{msg.timestamp}</div>
-        )}
       </div>
     </div>
   );
 }
-
 function WelcomeScreen({ onSuggestion }) {
   return (
     <div className="flex flex-col items-center justify-center h-full" style={{ padding: "40px 24px" }}>

@@ -1,37 +1,24 @@
 import ollama from "ollama";
 import { qdrant } from "../services/qdrant.js";
 import { GoogleGenAI } from "@google/genai";
-
+import keywordSearch from "./KeywordSearch.js";
+import rrf from "./rrf.js";
+import { retry } from "../utils/retry.js";
 const ai = new GoogleGenAI({ apiKey: process.env.RETRIVAL_GEMINI_KEY });
 
-/**
- *  STEP 0 — QUERY REWRITE (MOST IMPORTANT)
- */
-const rewriteQuery = (query, history) => {
-  if (!history?.length) return query;
 
-  const lastUserMessage = history
-    .filter(h => h.role === "user")
-    .slice(-1)[0]?.content;
 
-  // If query is short → expand using history
-  if (query.length < 20 && lastUserMessage) {
-    return `${lastUserMessage} → ${query}`;
-  }
-
-  return query;
-};
 
 /**
  * Detect table queries
  */
-const isTableQuery = (query) => {
-  const keywords = [
-    "how many", "count", "number", "credits",
-    "marks", "score", "list", "compare", "total"
-  ];
-  return keywords.some(k => query.toLowerCase().includes(k));
-};
+// const isTableQuery = (query) => {
+//   const keywords = [
+//     "how many", "count", "number", "credits",
+//     "marks", "score", "list", "compare", "total"
+//   ];
+//   return keywords.some(k => query.toLowerCase().includes(k));
+// };
 
 /**
  * MAIN QUERY PIPELINE
@@ -47,17 +34,16 @@ export const queryPipeline = async ({
     console.log(" Query pipeline begins for sessionID",sessionId);
 
     // ===============================
-    // STEP 0 — REWRITE QUERY 
-    // ===============================
-    const finalQuery = rewriteQuery(userQuery, history);
-    console.log("Final Query:", finalQuery);
 
+    //keyword search
+    const keywordSearchRes =await keywordSearch(userId,sessionId,fileId,userQuery);
+    
     // ===============================
     // STEP 1 — EMBEDDING
     // ===============================
     const embeddingRes = await ollama.embeddings({
       model: "nomic-embed-text",
-      prompt: finalQuery,
+      prompt: userQuery,
     });
 
     const queryVector = embeddingRes.embedding;
@@ -67,7 +53,7 @@ export const queryPipeline = async ({
     // ===============================
     const searchParams = {
       vector: queryVector,
-      limit: 20, //  increased
+      limit: 8, //  increased
     };
 
    const mustFilters = [];
@@ -96,37 +82,32 @@ if (sessionId) {
 searchParams.filter = {
   must: mustFilters
 };
-    const results = await qdrant.search("ai_brain", searchParams);
-    console.log(results);
+    const semanticRes = await qdrant.search("ai_brain", searchParams);
+    
+    const results = rrf(keywordSearchRes,semanticRes);
+   
+    // console.log("final results :",)results);
     if (!results.length) {
       return "No relevant information found.";
     }
-
+    
+    
+    //KeywordSearch
+    // const kwsearchResults = keywordSearch(userQuery);
+    // console.log(kwsearchResults)
     // ===============================
     // STEP 3 — SMART RANKING
     // ===============================
-    const tablePriority = isTableQuery(finalQuery);
-
-    const scored = results.map(r => {
-      let score = r.score * 1.5; //  prioritize semantic
-
-      if (tablePriority && r.payload.type === "table") {
-        score += 0.3;
-      }
-
-      return { ...r, hybridScore: score };
-    });
-
-    const topK = scored
-      .sort((a, b) => b.hybridScore - a.hybridScore)
-      .slice(0, 8); //  increased
-
+    // const tablePriority = isTableQuery(userQuery);
+    // const topK = scored
+    //   .sort((a, b) => b.hybridScore - a.hybridScore)
+    //   .slice(0, 8); //  increased
     // ===============================
     // STEP 4 — BUILD CONTEXT
     // ===============================
     let context = "";
 
-    topK.forEach(r => {
+    results.forEach(r => {
       const p = r.payload;
 
       if (p.type === "text") {
@@ -152,6 +133,7 @@ searchParams.filter = {
     // ===============================
     // STEP 6 — PROMPT (FIXED)
     // ===============================
+    console.log(context);
     const prompt = `
 You are a highly accurate AI assistant.
 
@@ -160,7 +142,19 @@ RULES:
 2. You may combine multiple pieces of context
 3. You may infer relationships (e.g., comparisons)
 4. If partially available → give best possible answer
-5. Only say "Not found in document" if nothing relevant exists
+
+Response guidelines:
+1. Answer directly and concisely.
+2. Use Markdown formatting.
+3. Use ## headings for major sections.
+4. Use bullet points for lists.
+5. Use bold only for important terms.
+6. Avoid nested bullet lists where possible.
+7. Use short paragraphs.
+8. Do not mention the retrieval process, embeddings, RRF, or context.
+9. Do not repeat the same information.
+10. If the answer is not present in the context, clearly say that it was not found.
+
 
 Conversation History:
 ${historyText}
@@ -169,16 +163,17 @@ Context:
 ${context}
 
 User Question:
-${finalQuery}
+${userQuery}
 `;
 
     // ===============================
     // STEP 7 — LLM
     // ===============================
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-lite",
+    const response = await retry(async()=>await ai.models.generateContent({
+      model: "gemini-3.5-flash-lite",
       contents: prompt,
-    });
+      stream:true
+    }))
 
     return response.text;
 

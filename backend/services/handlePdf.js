@@ -6,6 +6,6 @@ export const handlePdf = async (filePath) => {
     const text = await handleText(filePath)
     console.log("processUnstructured")
     const data = await processUnstructured(text)
-    console.log(data)
+    console.log("process unstructured fn comp");
     return data;
 };

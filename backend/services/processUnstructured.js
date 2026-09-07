@@ -5,7 +5,6 @@ import { convertTableToText } from "./convertTableToText.js";
 export const processUnstructured = async (elements) => {
   try{
     console.log("process unstructured is called");
-  console.log(elements[0])
   const TEXT_TYPES = ["Title", "NarrativeText", "ListItem"];
 
   let currentSection = "General";
@@ -19,6 +18,8 @@ export const processUnstructured = async (elements) => {
   });
 
   for (const el of elements) {
+    
+    
 
     //TITLE → new section
     if (el.type === "Title") {
@@ -71,7 +72,7 @@ export const processUnstructured = async (elements) => {
       if (table_html) {
         
         const tableText = await convertTableToText(table_html);
-
+        console.log(tableText);
         finalDocs.push(new Document({
           pageContent: tableText,
           metadata: {
@@ -81,6 +82,7 @@ export const processUnstructured = async (elements) => {
           }
         }));
       }
+      
     }
 
     //  IMAGE
@@ -102,7 +104,7 @@ export const processUnstructured = async (elements) => {
       }));
     });
   }
- console.log("finalDocs",finalDocs[0]);
+ 
  return finalDocs;
   }
   catch(e){

@@ -28,6 +28,6 @@ export const sendQuery = async ({ query, sessionId, fileId }) => {
     sessionId,
     fileId,
   });
-
+  
   return res.data; // { answer }
 };
