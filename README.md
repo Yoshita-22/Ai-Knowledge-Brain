@@ -24,7 +24,6 @@ Unlike traditional PDF chatbots, AI Brain incorporates:
 - Session-Based Context Awareness
 - Table Understanding
 - Batch Embedding Processing
-- RAG Evaluation Framework
 
 to improve answer quality and reduce hallucinations.
 
